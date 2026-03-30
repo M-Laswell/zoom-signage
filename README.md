@@ -1,5 +1,7 @@
-Media player for Zoom Digital Signage/n
-current media/n
+Media player for Zoom Digital Signage
+
+current media
+
 https://www.churchofjesuschrist.org/media/video/2025-10-1050-ronald-m-barcellos?lang=eng&alang=eng
 https://www.churchofjesuschrist.org/media/video/2025-10-1060-brik-v-eyre?lang=eng&alang=eng&collectionId=df8a20ae2b1f47879f9a929b556665d6
 https://www.churchofjesuschrist.org/media/video/2025-10-1070-kelly-r-johnson?lang=eng&alang=eng&collectionId=df8a20ae2b1f47879f9a929b556665d6
