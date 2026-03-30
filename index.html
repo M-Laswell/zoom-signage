@@ -16,11 +16,67 @@
   </style>
 </head>
 <body>
-  <video
-    src="https://assets.churchofjesuschrist.org/743e66f4bf5721067b60f6660304011913556c8e-1080p-en.mp4"
-    autoplay
-    loop
-    playsinline
-  ></video>
+  <video id="v" autoplay muted playsinline></video>
+  <script>
+    const playlist = [
+      "https://assets.churchofjesuschrist.org/743e66f4bf5721067b60f6660304011913556c8e-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/ecpit9tmr5fsvfj4anpktqiv4sgcijul0har25ws-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/emss3dzpiqkl6ynzvwpmbgjynwnsuoydwe5j58v7-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/cg5d4sai1uof9da5ji6q6a54ua9tgrceebm6fudn-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/wxi3z0w6rp77wjpv0y37xutv9f409lxx86sjtjzs-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/12h4tno0zzmmjmue1h34ltk86r1d9oiwupiznzpc-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/4vp5q8381dg5sw20g77pjqmkj1yl4800gnsdmbtx-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/yn33ctsc8uw9sm0lb01e98tjydkk9wym7prybr1y-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/64qjpoe9nz2l8vjqn1tgdpzclvwq0z0twkxioer0-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/o6xza1ff9mt1pa6978p4qg8mvqjrc0u8y8t7u1qi-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/4ndr0jh0gnnz44s82dh9fm0n7beqxwsz123kwi2d-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/ddavna86kstvg8urvd2l301i2bzovx5c7do36qpp-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/8uiwisw5qol3j2ch337fil05xgvousyot0ck61gi-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/aajhz9050n1718e7hj1ewb51z3jzntfejmmu4pmp-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/ecivpmmu8mljf7v77o5u4hrzr65gnskq2ggufpsl-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/2ok7kmtro4hoxmquyfjobeq1oi94rk9d7bkufmfv-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/v63z00q4igqlctjjh4g8qzivetmdx0jplmc7dkkr-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/8ilv3jsvb5p4nlliqat8waq55s5fa896jo1wu512-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/xxj8e4y49zu4k5nd5jn6j11dcty0rqbqb8tk2qkl-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/kaac7kdxwtpab30mwqqeursgbpy62eln9fr7cv98-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/yysfmfl8l4eojgprfhuw6rvi6rkexhljfs5hppnw-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/f18htn2l9t8197r523l2cli46ktkyynbuqk1tcnh-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/0bit5y2gd2z5126reh1p1a25hb7yrskg2p5but0n-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/f35fbahquixjbq9qs4g6d3n97d9pqlkmqn6r6mz3-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/jly1je8zrx1chygo3b8k2ssqbbawj2l2t5eku3t2-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/w7tqh4gqrzmindbkac39v7oesianpxt1jtndzohy-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/5cmtuyurp92hdt2qxaonltowlprbzzy1xx55hhpc-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/qodokyins6ds2gxnk9xt5lhqokclzdyd7wq9td7b-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/oizf2pq7ffeo459z5a6yl2f6l5wpeluu098a2grb-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/xq8ly54wyayaf2snqzi0886yj2bb27g83v90rjsy-1080p-en.mp4",
+      "https://assets.churchofjesuschrist.org/9j2bd7wocy7rz7si6odbv0jvegmpa6tx0kz3sor6-1080p-en.mp4"
+    ];
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    const shuffled = shuffle([...playlist]);
+    let index = 0;
+    const v = document.getElementById('v');
+
+    function playNext() {
+      v.src = shuffled[index];
+      v.muted = true;
+      v.play().then(() => { v.muted = false; }).catch(() => {});
+      index++;
+      if (index >= shuffled.length) {
+        index = 0;
+        shuffle(shuffled);
+      }
+    }
+
+    v.addEventListener('ended', playNext);
+    playNext();
+  </script>
 </body>
 </html>
