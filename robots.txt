@@ -1,0 +1,3 @@
+# Digital signage endpoint. Nothing here is intended for search indexing.
+User-agent: *
+Disallow: /
