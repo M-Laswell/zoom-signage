@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>Signage</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,6 +13,15 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       object-fit: cover;
+    }
+    /* Caption styling — sized for viewing distance, not a desktop monitor */
+    video::cue {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 3.2vh;
+      line-height: 1.35;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.72);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
     }
   </style>
 </head>
@@ -52,6 +62,17 @@
       "https://assets.churchofjesuschrist.org/9j2bd7wocy7rz7si6odbv0jvegmpa6tx0kz3sor6-1080p-en.mp4"
     ];
 
+    // Captions live in ./captions/<assetHash>.vtt. The hash is already in each
+    // MP4 URL, so the path is derived rather than maintained by hand. A missing
+    // file just plays uncaptioned.
+    //
+    // These MUST be local files. The caption source (Brightcove) serves signed,
+    // expiring URLs with no CORS headers, so a remote <track> cannot work.
+    function captionFor(mp4Url) {
+      const m = mp4Url.match(/\/([a-z0-9]+)-\d+p-en\.mp4$/);
+      return m ? `captions/${m[1]}.vtt` : null;
+    }
+
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -64,10 +85,7 @@
     let index = 0;
     const v = document.getElementById('v');
 
-    function playNext() {
-      v.src = shuffled[index];
-      v.muted = true;
-      v.play().then(() => { v.muted = false; }).catch(() => {});
+    function advance() {
       index++;
       if (index >= shuffled.length) {
         index = 0;
@@ -75,7 +93,64 @@
       }
     }
 
+    function playNext() {
+      const url = shuffled[index];
+      const cc = captionFor(url);
+
+      // Clear the previous <track> before loading the next clip
+      while (v.firstChild) v.removeChild(v.firstChild);
+
+      v.src = url;
+
+      if (cc) {
+        const t = document.createElement('track');
+        t.kind = 'captions';
+        t.srclang = 'en';
+        t.label = 'English';
+        t.src = cc;
+        t.default = true;
+        v.appendChild(t);
+        // The default attribute alone is unreliable when swapping src at
+        // runtime, so force the track on once it's parsed.
+        const show = () => { if (t.track) t.track.mode = 'showing'; };
+        t.addEventListener('load', show);
+        v.addEventListener('loadedmetadata', show, { once: true });
+      }
+
+      markProgress();
+      v.muted = true;
+      v.play().then(() => { v.muted = false; }).catch(() => {});
+      advance();
+    }
+
     v.addEventListener('ended', playNext);
+
+    // Don't let one dead URL freeze the wall — skip to the next clip
+    v.addEventListener('error', () => setTimeout(playNext, 1000));
+
+    // Stall watchdog. A clip that hangs mid-buffer fires 'waiting'/'stalled'
+    // but never 'error' or 'ended', so neither handler above runs and the
+    // display freezes with paused === false — verified in Chromium, where
+    // currentTime simply stops advancing. This is the only recovery path for
+    // that case. 20s of zero progress is definitively broken, while still
+    // being generous enough that slow buffering doesn't cause skipping.
+    const STALL_MS = 20000;
+    const CHECK_MS = 5000;
+    let lastTime = -1;
+    let lastProgress = Date.now();
+
+    function markProgress() {
+      lastTime = v.currentTime;
+      lastProgress = Date.now();
+    }
+
+    setInterval(() => {
+      if (v.currentTime !== lastTime) { markProgress(); return; }
+      if (Date.now() - lastProgress < STALL_MS) return;
+      markProgress();
+      playNext();
+    }, CHECK_MS);
+
     playNext();
   </script>
 </body>
